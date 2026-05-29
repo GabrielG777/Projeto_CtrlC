@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
 
 abstract final class Responsive {
-  static bool isMobile(BuildContext context) =>
-      MediaQuery.sizeOf(context).width < 600;
+  /// Largura máxima do “celular” ao abrir no navegador/desktop.
+  static const double appMaxWidth = 430;
 
-  static bool isWide(BuildContext context) =>
-      MediaQuery.sizeOf(context).width >= 900;
+  static bool showPhoneFrame(BuildContext context) =>
+      MediaQuery.sizeOf(context).width > appMaxWidth;
 
-  static double maxFormWidth(BuildContext context) {
-    if (isWide(context)) return 440;
-    return double.infinity;
-  }
-
-  static EdgeInsets padding(BuildContext context) {
-    if (isWide(context)) {
-      return const EdgeInsets.symmetric(horizontal: 48, vertical: 32);
-    }
-    return const EdgeInsets.symmetric(horizontal: 24, vertical: 20);
+  static EdgeInsets screenPadding(BuildContext context) {
+    final bottom = MediaQuery.viewPaddingOf(context).bottom;
+    return EdgeInsets.fromLTRB(24, 8, 24, bottom > 0 ? 16 : 24);
   }
 }

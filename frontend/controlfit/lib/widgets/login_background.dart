@@ -1,10 +1,10 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
+/// Fundo sutil estilo app — sem grid de dashboard web.
 class LoginBackground extends StatefulWidget {
   const LoginBackground({super.key, required this.child});
 
@@ -23,7 +23,7 @@ class _LoginBackgroundState extends State<LoginBackground>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 10),
+      duration: const Duration(seconds: 14),
     )..repeat();
   }
 
@@ -42,18 +42,17 @@ class _LoginBackgroundState extends State<LoginBackground>
         return Stack(
           fit: StackFit.expand,
           children: [
-            const DecoratedBox(
-              decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
+            const ColoredBox(color: AppColors.background),
+            Positioned(
+              top: -80,
+              left: -40 + math.sin(t * 2 * math.pi) * 20,
+              child: _glow(220, AppColors.primary.withValues(alpha: 0.18)),
             ),
-            _orb(
-              Alignment(-0.7 + math.sin(t * 2 * math.pi) * 0.1, -0.5),
-              AppColors.primary,
+            Positioned(
+              bottom: 120,
+              right: -60 + math.cos(t * 2 * math.pi) * 16,
+              child: _glow(180, AppColors.accent.withValues(alpha: 0.12)),
             ),
-            _orb(
-              Alignment(0.8 + math.cos(t * 2 * math.pi) * 0.1, 0.6),
-              AppColors.accent,
-            ),
-            CustomPaint(painter: _GridPainter()),
             widget.child,
           ],
         );
@@ -61,39 +60,11 @@ class _LoginBackgroundState extends State<LoginBackground>
     );
   }
 
-  Widget _orb(Alignment alignment, Color color) {
-    return Align(
-      alignment: alignment,
-      child: ImageFiltered(
-        imageFilter: ImageFilter.blur(sigmaX: 70, sigmaY: 70),
-        child: Container(
-          width: 280,
-          height: 280,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color.withValues(alpha: 0.2),
-          ),
-        ),
-      ),
+  Widget _glow(double size, Color color) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
     );
   }
-}
-
-class _GridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = AppColors.primary.withValues(alpha: 0.04)
-      ..strokeWidth = 0.5;
-    const step = 48.0;
-    for (var x = 0.0; x < size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (var y = 0.0; y < size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

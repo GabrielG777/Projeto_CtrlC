@@ -37,6 +37,41 @@ class _LoginFormState extends State<LoginForm>
 
   late final AnimationController _shake;
 
+  static InputDecoration _fieldDecoration({
+    required String label,
+    required IconData icon,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, size: 22),
+      suffixIcon: suffix,
+      filled: true,
+      fillColor: AppColors.surface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: AppColors.border, width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: AppColors.error),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -98,20 +133,6 @@ class _LoginFormState extends State<LoginForm>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Bem-vindo',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Entre na sua conta',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-            ),
-            const SizedBox(height: 24),
             if (_error != null) ...[
               _ErrorBox(message: _error!),
               const SizedBox(height: 16),
@@ -121,116 +142,103 @@ class _LoginFormState extends State<LoginForm>
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               enabled: !_loading,
-              decoration: const InputDecoration(
-                labelText: 'E-mail',
-                prefixIcon: Icon(Icons.mail_outline_rounded),
+              style: const TextStyle(fontSize: 16),
+              decoration: _fieldDecoration(
+                label: 'E-mail',
+                icon: Icons.mail_outline_rounded,
               ),
               validator: Validators.email,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             TextFormField(
               controller: _passwordController,
               obscureText: _obscure,
               textInputAction: TextInputAction.done,
               enabled: !_loading,
+              style: const TextStyle(fontSize: 16),
               onFieldSubmitted: (_) => _submit(),
-              decoration: InputDecoration(
-                labelText: 'Senha',
-                prefixIcon: const Icon(Icons.lock_outline_rounded),
-                suffixIcon: IconButton(
+              decoration: _fieldDecoration(
+                label: 'Senha',
+                icon: Icons.lock_outline_rounded,
+                suffix: IconButton(
                   icon: Icon(
                     _obscure
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
+                    size: 22,
                   ),
                   onPressed: () => setState(() => _obscure = !_obscure),
                 ),
               ),
               validator: Validators.password,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: _loading ? null : widget.onForgotPassword,
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                ),
                 child: const Text('Esqueceu sua senha?'),
               ),
             ),
-            const SizedBox(height: 8),
-            _PrimaryButton(
-              label: 'Entrar',
-              loading: _loading,
-              onPressed: _loading ? null : _submit,
-            ),
             const SizedBox(height: 20),
-            OutlinedButton(
-              onPressed: _loading ? null : widget.onCreateAccount,
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 52),
-                side: const BorderSide(color: AppColors.border),
+            SizedBox(
+              height: 54,
+              child: FilledButton(
+                onPressed: _loading ? null : _submit,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.background,
+                  disabledBackgroundColor: AppColors.border,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                ),
+                child: _loading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: AppColors.background,
+                        ),
+                      )
+                    : const Text(
+                        'Entrar',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
               ),
-              child: const Text('Criar conta'),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Não tem conta?',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                ),
+                TextButton(
+                  onPressed: _loading ? null : widget.onCreateAccount,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                  ),
+                  child: const Text(
+                    'Criar conta',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PrimaryButton extends StatelessWidget {
-  const _PrimaryButton({
-    required this.label,
-    required this.loading,
-    this.onPressed,
-  });
-
-  final String label;
-  final bool loading;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(14),
-        child: Ink(
-          height: 54,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            gradient: onPressed != null ? AppColors.brandGradient : null,
-            color: onPressed == null ? AppColors.border : null,
-            boxShadow: onPressed != null
-                ? [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.25),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Center(
-            child: loading
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: AppColors.background,
-                    ),
-                  )
-                : Text(
-                    label,
-                    style: const TextStyle(
-                      color: AppColors.background,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
-                  ),
-          ),
         ),
       ),
     );
@@ -245,15 +253,14 @@ class _ErrorBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.error.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.error.withValues(alpha: 0.4)),
+        color: AppColors.error.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: AppColors.error, size: 20),
+          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -261,7 +268,7 @@ class _ErrorBox extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
-                  ?.copyWith(color: AppColors.error),
+                  ?.copyWith(color: AppColors.error, height: 1.35),
             ),
           ),
         ],
