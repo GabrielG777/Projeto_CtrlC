@@ -649,7 +649,7 @@ Os relatórios são gerados utilizando dados reais armazenados no Firestore.
 
 ---
 
-# Projeto Front-End
+# ControlFit---Front-End
 
 # Estrutura do Git Flow
 
